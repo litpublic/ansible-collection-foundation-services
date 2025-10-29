@@ -1,0 +1,33 @@
+---
+namespace: litpublic
+name: foundation_services
+version: 1.0.12
+readme: README.md
+license:
+  - Apache-2.0
+description: >
+  Foundation services on RHEL hosts (Vault, Nexus, GitLab Runner) as Ansible roles.
+authors:
+  - Lightning IT <info@l-it.io>
+tags: [linux, rhel, vault, nexus, gitlab, runner, devops, foundation]
+build_ignore:
+  - collections/
+  - molecule/
+  - docker/
+  - scripts/
+  - tests/
+  - dist/
+  - publish_debug/
+  - .cache/
+  - pip-wheel-metadata/
+  - .gitlab-ci.yml
+  - .pre-commit-config.yaml
+  - CHANGELOG.md
+  - CODE_OF_CONDUCT.md
+  - AGENTS.md
+dependencies:
+  ansible.posix: ">=1.5.0"
+  community.general: ">=8.0.0"
+  containers.podman: ">=1.13.0"
+repository: https://gitlab.com/lightning-it/ansible-collection-foundation_services
+issues: https://gitlab.com/lightning-it/ansible-collection-foundation_services/-/issues
