@@ -1,7 +1,7 @@
 ---
 namespace: litpublic
 name: foundation_services
-version: 1.0.12
+version: 1.0.0
 readme: README.md
 license:
   - Apache-2.0
