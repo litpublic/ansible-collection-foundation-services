@@ -3,6 +3,17 @@
 
 ### Bug Fixes
 
+* new release ([32176f1](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/32176f1df47a33fa9fcd1d319a41b3a4c91f9554))
+* new release ([571e3d8](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/571e3d85a8362599e7f0fa8343c281ffcfc0e591))
+* new release ([0f841bb](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/0f841bb0ea6b83f41adad45229a9bacd483c5871))
+* new release ([d1e6dfa](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/d1e6dfac8221cd302b4711b62b4f29b20959ee8f))
+* typo fixed ([d38ff0f](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/d38ff0f6468af8737b24f7625bade8c30baf25be))
+
+# 1.0.0 (2025-10-31)
+
+
+### Bug Fixes
+
 * new release ([d1e6dfa](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/d1e6dfac8221cd302b4711b62b4f29b20959ee8f))
 
 ## [1.0.12](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.11...v1.0.12) (2025-10-29)
