@@ -1,3 +1,10 @@
+## [1.0.1](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.0...v1.0.1) (2025-11-10)
+
+
+### Bug Fixes
+
+* new release for new collection ([dab1022](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/dab102274909aa71d277cb8a5657de6caa657a6d))
+
 # 1.0.0 (2025-10-31)
 
 
