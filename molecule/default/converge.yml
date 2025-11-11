@@ -5,18 +5,18 @@
   tasks:
     - name: Apply gitlab_runner
       ansible.builtin.include_role:
-        name: litpublic.foundation_services.gitlab_runner
+        name: lit.foundation_services.gitlab_runner
       vars:
         gitlab_runner_experimental_acknowledge: true
 
     - name: Apply nexus
       ansible.builtin.include_role:
-        name: litpublic.foundation_services.nexus
+        name: lit.foundation_services.nexus
       vars:
         nexus_experimental_acknowledge: true
 
     - name: Apply vault
       ansible.builtin.include_role:
-        name: litpublic.foundation_services.vault
+        name: lit.foundation_services.vault
       vars:
         vault_experimental_acknowledge: true
