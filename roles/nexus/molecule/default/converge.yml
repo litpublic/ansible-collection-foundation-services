@@ -4,4 +4,4 @@
   gather_facts: true
   connection: local
   roles:
-    - role: litpublic.foundation_services.nexus
+    - role: lit.foundation_services.nexus

@@ -1,5 +1,5 @@
 ---
-namespace: litpublic
+namespace: lit
 name: foundation_services
 version: 1.0.1
 readme: README.md
