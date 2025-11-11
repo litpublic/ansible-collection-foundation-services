@@ -1,4 +1,4 @@
-# lit.foundation_services (v1.0.1)
+# lit.foundation_services (v1.0.2)
 
 Roles included (prefix-free, modern):
 - `vault` — HashiCorp Vault on RHEL (systemd or Podman/Quadlet) *(experimental stub)*

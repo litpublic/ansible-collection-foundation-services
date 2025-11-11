@@ -1,3 +1,10 @@
+## [1.0.2](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.1...v1.0.2) (2025-11-11)
+
+
+### Bug Fixes
+
+* new collection namespace ([af26ef6](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/af26ef6f5759fd251c9e9a8f4b8334049323ba8b))
+
 ## [1.0.1](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.0...v1.0.1) (2025-11-10)
 
 
