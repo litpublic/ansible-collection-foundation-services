@@ -1,3 +1,10 @@
+## [1.0.3](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.2...v1.0.3) (2025-11-14)
+
+
+### Bug Fixes
+
+* add more roles ([8360eb7](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/8360eb7837c2a84bb5838a3233a8a5eb3b7e51db))
+
 ## [1.0.2](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.1...v1.0.2) (2025-11-11)
 
 
