@@ -1,3 +1,10 @@
+## [1.0.4](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.3...v1.0.4) (2025-11-14)
+
+
+### Bug Fixes
+
+* add missing role readmes ([10839ef](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/10839ef27ec67ca32f9ece89ba5da2f8a721f626))
+
 ## [1.0.3](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.2...v1.0.3) (2025-11-14)
 
 
