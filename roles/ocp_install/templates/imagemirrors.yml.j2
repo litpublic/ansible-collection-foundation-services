@@ -1,0 +1,11 @@
+apiVersion: config.openshift.io/v1
+kind: {{ item.kind }}
+metadata:
+  name: default
+spec:
+  {{ item.spec }}:
+{% for mirror in ins_image_tag_mirrors %}
+    - mirrors:
+      - {{ mirror.destination }}
+      source: {{ mirror.source }}
+{% endfor %}

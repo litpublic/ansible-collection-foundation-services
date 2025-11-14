@@ -1,0 +1,55 @@
+---
+- name: Create .kube directory
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ ins_kubeconfig_dir }}"
+    state: directory
+    mode: "0711"
+  tags:
+    - always
+
+- name: Get cert from cluster api address
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.crypto.get_certificate:
+    asn1_base64: true
+    host: "api.{{ ins_cluster_name }}.{{ ins_base_domain }}"
+    port: 6443
+  register: cert
+  tags:
+    - always
+
+- name: Set ins_cluster_kubeconfig_vault_key to selfsigned-CA if CA OU is selfsigned
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  ansible.builtin.set_fact:
+    ins_cluster_kubeconfig_vault_key: "kubeconfig"
+  when: cert.issuer.O is not defined or cert.issuer.O != ins_ca_o
+  tags:
+    - always
+
+- name: Download kubeconfig from vault
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.hashi_vault.vault_kv2_get:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+  register: vault_secret
+  tags:
+    - always
+
+- name: Write kubeconfig
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  ansible.builtin.copy:
+    content: "{{ vault_secret.data.data[ins_cluster_kubeconfig_vault_key] }}"
+    dest: "{{ ins_kubeconfig_dir }}/config"
+    mode: '0644'
+  tags:
+    - always

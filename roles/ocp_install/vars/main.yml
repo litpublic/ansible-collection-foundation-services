@@ -1,0 +1,5 @@
+---
+ins_cluster_sub_dirs:
+  download: "{{ ins_dir }}/ocp/downloads"
+  config: "{{ ins_dir }}/ocp/config"
+  bin: "$HOME/.local/bin"

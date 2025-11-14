@@ -1,0 +1,11 @@
+---
+- name: Wait for install complete agent based
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  ansible.builtin.command:
+    cmd: >-
+      {{ ins_cluster_sub_dirs.download }}/openshift-install agent wait-for install-complete
+      --dir {{ ins_cluster_sub_dirs.config }}
+  changed_when: false
+  retries: 60
+  delay: 60

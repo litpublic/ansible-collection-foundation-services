@@ -1,0 +1,67 @@
+---
+- name: Retrieve current secret from Hashicorp Vault
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.hashi_vault.vault_kv2_get:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+  register: current
+  no_log: true
+
+- name: Maintain kube credentials
+  when:
+    - current.secret.kubeconfig is not defined or current.secret.kubeconfig == ''
+    - current.secret.kubeconfig_CA is not defined or current.secret.kubeconfig_CA == ''
+    - current.secret.password is not defined or current.secret.password == ''
+  block:
+    - name: Read kubeconfig
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.slurp:
+        src: "{{ ins_cluster_sub_dirs.config }}/auth/kubeconfig"
+      register: kubeconfig_slurp
+      no_log: true
+
+    - name: Set kubeconfig with internal Root CA
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.set_fact:
+        kubeconfig_with_custom_ca: >-
+          {{ (kubeconfig_slurp.content | b64decode) |
+          regex_replace('certificate-authority-data: .*', 'certificate-authority-data: ' + (ins_root_ca | b64encode)) }}
+
+    - name: Read kubeadmin
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.slurp:
+        src: "{{ ins_cluster_sub_dirs.config }}/auth/kubeadmin-password"
+      register: kubeadmin_slurp
+      no_log: true
+
+    - name: Write kubeconfig and password to vault
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      vars:
+        values_to_update:
+          kubeconfig: "{{ kubeconfig_slurp['content'] | b64decode }}"
+          kubeconfig_CA: "{{ kubeconfig_with_custom_ca }}"
+          password: "{{ kubeadmin_slurp['content'] | b64decode }}"
+      community.hashi_vault.vault_kv2_write:
+        url: "{{ vault_address }}"
+        engine_mount_point: "{{ ins_engine_mount_point }}"
+        path: "{{ ins_cluster_name }}/install"
+        auth_method: "{{ ins_hashi_vault_auth_method }}"
+        role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+        secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+        validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+        data: >-
+          {{
+            current.secret
+            | combine(values_to_update)
+          }}
+      no_log: true

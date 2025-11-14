@@ -1,0 +1,17 @@
+---
+gitops_operator_state: present
+gitops_argocd_state: present
+gitops_approve: false
+gitops_operator_name: openshift-gitops-operator
+gitops_operator_channel: gitops-1.18
+gitops_operator_source: redhat-operators
+gitops_operator_install_plan: Manual
+gitops_operator_starting_csv: ''
+gitops_operator_subscription_extras: |
+  config:
+    env:
+    - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+      value: openshift-gitops
+git_app_instance_label_key: app.kubernetes.io/instance
+git_vault_enabled: false
+git_external_secrets_path: stage-2c/data/{{ cluster_id[1:4] }}/{{ cluster_id[4:7] }}/{{ cluster_id }}/approle

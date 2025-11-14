@@ -1,0 +1,27 @@
+---
+- name: Get kubeconfig for OCP cluster
+  ansible.builtin.include_tasks: cluster_login.yml
+  tags:
+    - always
+
+- name: Create image tag mirror set
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  when:
+    - ins_registry is defined
+    - ins_registry | bool
+  tags:
+    - post_install
+  block:
+    - name: Create image tag mirror set
+      kubernetes.core.k8s:
+        kubeconfig: "{{ ins_kubeconfig_dir }}/config"
+        state: present
+        definition: >-
+          {{ lookup('template', 'imagemirrors.yml.j2') }}
+      register: _ins_set_imagetagmirrorset_results
+      loop:
+        - kind: ImageTagMirrorSet
+          spec: imageTagMirrors
+        - kind: ImageDigestMirrorSet
+          spec: imageDigestMirrors

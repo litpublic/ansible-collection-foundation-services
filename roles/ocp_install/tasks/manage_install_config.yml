@@ -1,0 +1,44 @@
+---
+- name: Create install-config.yaml
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  ansible.builtin.template:
+    src: install-config.yaml.j2
+    dest: "{{ ins_cluster_sub_dirs.config }}/install-config.yaml"
+    mode: '0644'
+
+- name: Retrieve current secret from Hashicorp Vault
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.hashi_vault.vault_kv2_get:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+  register: current
+  no_log: true
+
+- name: Write install-config.yaml to vault
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  vars:
+    values_to_update:
+      install-config.yaml: >-
+        {{ lookup('ansible.builtin.template', './install-config.yaml.j2') }}
+  community.hashi_vault.vault_kv2_write:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+    data: >-
+      {{
+        current.secret
+        | combine(values_to_update, recursive=False)
+      }}
+  no_log: true

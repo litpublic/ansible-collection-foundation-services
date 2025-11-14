@@ -1,0 +1,24 @@
+---
+- name: Test required values for platform vsphere
+  ansible.builtin.assert:
+    that:
+      - ins_api_vip | length > 0
+      - ins_apps_vip | length > 0
+      - ins_vcenter_hostname | length > 0
+      - ins_vcenter_password | length > 0
+      - ins_vcenter_username | length > 0
+      - ins_vsphere_cluster | length > 0
+      - ins_vsphere_datacenter | length > 0
+      - vvs_vmware_iso_datastore | length > 0
+      - ins_vsphere_network | length > 0
+  when: ins_platform == 'vsphere'
+
+- name: Test required values for OCP
+  ansible.builtin.assert:
+    that:
+      - ins_base_domain | length > 0
+      - ins_cluster_name | length > 0
+      - ins_gateway | length > 0
+      - ins_gateway | length > 0
+      - ins_dns_servers | length > 0
+      - ins_ca_o | length > 0

@@ -1,0 +1,57 @@
+---
+# general config
+ins_delegate_to: localhost
+ins_dir: /root
+ins_platform: vsphere
+ins_kubeconfig_dir: '~/.kube'
+
+# vsphere config
+ins_vsphere: true
+ins_vcenter_hostname:
+ins_vcenter_password:
+ins_vcenter_username:
+ins_vsphere_cluster:
+ins_vsphere_datacenter:
+ins_vsphere_network:
+
+# ocp config
+ins_base_domain: ''
+ins_cluster_name:
+ins_version: 4.18.13
+ins_os: linux
+ins_arch: x86_64
+ins_loadbalancer_usermanaged: false
+ins_mirror: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp
+ins_occlient: "{{ ins_mirror }}/{{ ins_version }}/openshift-client-linux-{{ ins_version }}.tar.gz"
+ins_download_url: quay.io/openshift-release-dev/ocp-release
+ins_machine_network:
+ins_service_network: 172.30.0.0/16
+ins_pod_network: 10.128.0.0/14
+ins_proxy: false
+ins_proxy_url:
+ins_no_proxy:
+ins_pullsecret: ''
+ins_registry_quayio:
+ins_ssh_pub_keys: []
+ins_registry: false
+ins_root_ca:
+ins_ca_o:
+ins_additional_trust_bundle: ''
+ins_api_vip: "{{ lookup('community.general.dig', 'api.' ~ ins_cluster_name ~ '.' ~ ins_base_domain) }}"
+ins_apps_vip: "{{ lookup('community.general.dig', 'wildcard.apps.' ~ ins_cluster_name ~ '.' ~ ins_base_domain) }}"
+ins_ifname: ens192
+ins_gateway:
+ins_dns_servers:
+ins_netmask_prefix: "{{ ins_machine_network | ansible.utils.ipaddr('prefix') }}"
+ins_image_tag_mirrors: {}
+ins_taints_ocs:
+  - effect: NoSchedule
+    key: node.ocs.openshift.io/storage
+    value: "true"
+ins_odf: true
+
+# hashicorp config
+ins_engine_mount_point: infra-secrets
+ins_hashi_vault_auth_method: approle
+ins_cluster_kubeconfig_vault_key: kubeconfig_CA
+ins_hashi_vault_validate_certs: true

@@ -1,0 +1,82 @@
+---
+- name: Retrieve current secret from Hashicorp Vault
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.hashi_vault.vault_kv2_get:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+  register: current
+  no_log: true
+
+- name: Add ssh pubkey to ins_ssh_pub_keys
+  ansible.builtin.set_fact:
+    ins_ssh_pub_keys: "{{ ins_ssh_pub_keys + [current.secret.ssh_pub] }}"
+  when:
+    - current.secret.ssh_pub is defined
+    - current.secret.ssh_pub | length > 0
+
+- name: Manage ssh key pair
+  when:
+    - current.secret.ssh_key is not defined
+    - current.secret.ssh_pub is not defined
+  block:
+    - name: Create local temporary ssh directory
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.tempfile:
+        state: directory
+      register: _ssh_tempdir
+
+    - name: Generate new ssh ed25519 key for {{ ins_cluster_name }}
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      community.crypto.openssh_keypair:
+        type: ed25519
+        path: "{{ _ssh_tempdir.path }}/id_ed25519"
+        comment: "core@{{ ins_cluster_name }}"
+
+    - name: Read root ssh key
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.slurp:
+        src: "{{ _ssh_tempdir.path }}/id_ed25519.pub"
+      register: _ssh_key_results
+
+    - name: Write ssh private and public key to vault
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      vars:
+        _ssh_key_path: "{{ _ssh_tempdir.path }}/id_ed25519"
+        _ssh_pub_path: "{{ _ssh_tempdir.path }}/id_ed25519.pub"
+        values_to_update:
+          ssh_key: "{{ lookup('file', _ssh_key_path, rstrip=False) }}"
+          ssh_pub: "{{ lookup('file', _ssh_pub_path, rstrip=False) }}"
+      community.hashi_vault.vault_kv2_write:
+        url: "{{ vault_address }}"
+        engine_mount_point: "{{ ins_engine_mount_point }}"
+        path: "{{ ins_cluster_name }}/install"
+        auth_method: "{{ ins_hashi_vault_auth_method }}"
+        role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+        secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+        validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+        data: >-
+          {{
+            current.secret
+            | combine(values_to_update)
+          }}
+      no_log: true
+
+    - name: Add ssh pubkey to ins_ssh_pub_keys
+      ansible.builtin.set_fact:
+        ins_ssh_pub_keys: "{{ ins_ssh_pub_keys + [lookup('file', _ssh_pub_path, rstrip=False)] }}"
+    - name: Remove ssh temporary directory (delete ssh private key file)
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.file:
+        path: "{{ _ssh_tempdir.path }}"
+        state: absent

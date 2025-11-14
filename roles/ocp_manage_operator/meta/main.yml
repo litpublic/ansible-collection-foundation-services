@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Dirk Egert
+  description: role to install/uninstall operator
+  company: degert-it
+  role_name: ocp_manage_operator
+  namespace: default
+
+  license: BSD-3-Clause
+  min_ansible_version: '2.1'
+  galaxy_tags: []
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+dependencies: []

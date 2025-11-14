@@ -61,6 +61,7 @@ lint:
       "ansible-core==${ANSIBLE_CORE_VERSION}"
       "ansible-lint==${ANSIBLE_LINT_VERSION}"
       "yamllint==${YAMLLINT_VERSION}"
+      "jmespath"
   script:
     - ansible-lint
     - yamllint -c .yamllint.yaml .
