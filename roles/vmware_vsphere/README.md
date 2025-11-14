@@ -8,7 +8,7 @@ Creates or destroys vSphere folders and virtual machines required for agent-base
 - hosts: localhost
   gather_facts: false
   roles:
-    - role: litpublic.foundation_services.vmware_vsphere
+    - role: lit.foundation_services.vmware_vsphere
       vars:
         vvs_datacenter: DC1
         vvs_folder_name: OpenShift/demo

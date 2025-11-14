@@ -8,7 +8,7 @@ Automates an agent-based OpenShift Container Platform deployment: it prepares co
 - hosts: localhost
   gather_facts: false
   roles:
-    - role: litpublic.foundation_services.ocp_install
+    - role: lit.foundation_services.ocp_install
       vars:
         ins_cluster_name: demo
         ins_base_domain: corp.example.com

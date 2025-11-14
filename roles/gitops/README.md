@@ -8,7 +8,7 @@ Installs and manages the OpenShift GitOps (Argo CD) operator, seeds the initial 
 - hosts: localhost
   gather_facts: false
   roles:
-    - role: litpublic.foundation_services.gitops
+    - role: lit.foundation_services.gitops
       vars:
         gitops_operator_channel: gitops-1.18
         gitops_operator_state: present
