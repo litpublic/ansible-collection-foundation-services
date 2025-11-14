@@ -1,0 +1,66 @@
+---
+- name: Ensure all needed vars are present
+  ansible.builtin.include_tasks: assert.yml
+  tags:
+    - always
+
+- name: Fetch values from Vault or fallback
+  ansible.builtin.set_fact:
+    ins_additional_trust_bundle: >-
+      {{ lookup('community.hashi_vault.hashi_vault', g_root_ca_lookup, default=ins_additional_trust_bundle) }}
+    ins_root_ca: >-
+      {{ lookup('community.hashi_vault.hashi_vault', g_root_ca_lookup, default=ins_root_ca) }}
+    ins_pullsecret: >-
+      {{ lookup('community.hashi_vault.hashi_vault', ins_pullsecret_lookup, default=ins_pullsecret) }}
+  no_log: true
+  tags:
+    - always
+
+- name: Retrieve current secret from Hashicorp Vault1
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.hashi_vault.vault_kv2_get:
+    url: "{{ vault_address }}"
+    engine_mount_point: "{{ ins_engine_mount_point }}"
+    path: "{{ ins_cluster_name }}/install"
+    auth_method: "{{ ins_hashi_vault_auth_method }}"
+    role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+    secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+    validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+  register: current
+  no_log: true
+
+- name: Install OCP
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  when:
+    - current.secret.password is not defined or current.secret.password == ''
+  block:
+    - name: Prepare OCP install
+      ansible.builtin.include_tasks: prepare_ocp4.yml
+
+    - name: Maintain SSH keys
+      ansible.builtin.include_tasks: maintain_ssh_keys.yml
+
+    - name: Manage install config
+      ansible.builtin.include_tasks: manage_install_config.yml
+
+    - name: Manage agent config
+      ansible.builtin.include_tasks: manage_agent_config.yml
+
+    - name: Maintain kube credentials
+      ansible.builtin.include_tasks: maintain_kube_creds.yml
+
+    - name: Poweron VMs
+      ansible.builtin.include_tasks: power_on_vms.yml
+
+    - name: Wait for install complete agent based
+      ansible.builtin.include_tasks: wait_for_install_completed.yml
+
+- name: Post Install
+  ansible.builtin.include_tasks: post_ocp.yml
+  tags: ins_post
+
+- name: Setup Infra and App Nodes
+  ansible.builtin.import_tasks: setup_nodes.yml
+  tags: ins_infra

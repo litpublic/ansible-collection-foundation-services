@@ -1,0 +1,54 @@
+apiVersion: v1
+baseDomain: {{ ins_base_domain }}
+{% if ins_proxy | bool %}
+proxy:
+  httpProxy: "{{ ins_proxy_url }}"
+  httpsProxy: "{{ ins_proxy_url }}"
+  noProxy: "{{ ins_no_proxy }}"
+{% endif %}
+compute:
+  - architecture: amd64
+    hyperthreading: Enabled
+    name: worker
+    platform: {}
+    replicas: {{ groups['compute'] | length + groups['infra'] | length }}
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform: {}
+  replicas: 3
+metadata:
+  name: {{ ins_cluster_name }}
+networking:
+  clusterNetwork:
+    - cidr: {{ ins_pod_network }}
+      hostPrefix: 23
+  machineNetwork:
+    - cidr: {{ ins_machine_network }}
+  networkType: OVNKubernetes
+  serviceNetwork:
+    - {{ ins_service_network }}
+platform:
+  {{ lookup('template', 'platform-' ~ ins_platform ~ '.yml.j2') | indent(2) }}
+pullSecret: '{{ ins_pullsecret }}'
+sshKey: |
+{% for key in ins_ssh_pub_keys %}
+  {{ key }}
+{% endfor %}
+{% if ins_additional_trust_bundle | length > 0 %}
+additionalTrustBundle: |
+  {{ ins_additional_trust_bundle | indent(2) }}
+{% endif %}
+{% if ins_registry | bool %}
+ImageDigestSources:
+  - mirrors:
+    - {{ ins_registry_quayio }}/openshift-release-dev/ocp-v4.0-art-dev
+    source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+  - mirrors:
+    - {{ ins_registry_quayio }}/openshift-release-dev/ocp-release
+    source: quay.io/openshift-release-dev/ocp-release
+  - mirrors:
+    - eps-om-proj-prg-registry-redhat-io.artifactory.dhl.com
+    source: registry.redhat.io
+{% endif %}

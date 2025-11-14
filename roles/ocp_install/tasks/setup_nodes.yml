@@ -1,0 +1,72 @@
+---
+- name: Get kubeconfig for OCP cluster
+  ansible.builtin.include_tasks: cluster_login.yml
+  tags:
+    - always
+
+- name: Label infra nodes
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Node
+      metadata:
+        name: "{{ item }}"
+        labels:
+          node-role.kubernetes.io/infra: ""
+      spec:
+        taints: "{{ ins_taints_ocs }}"
+  loop: "{{ groups['infra'] }}"
+
+- name: Set topology and storage label for infra nodes
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  kubernetes.core.k8s:
+    state: patched
+    definition:
+      apiVersion: v1
+      kind: Node
+      metadata:
+        name: "{{ item }}"
+        labels:
+          topology.kubernetes.io/zone: "DC{{ '%02d' | format(((my_index % 3) + 1)) }}"
+          cluster.ocs.openshift.io/openshift-storage: ''
+  loop: "{{ groups['infra'] }}"
+  loop_control:
+    index_var: my_index
+  when: ins_odf
+
+- name: Label worker nodes as app nodes
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Node
+      metadata:
+        name: "{{ item }}"
+        labels:
+          node-role.kubernetes.io/app: ""
+  loop: "{{ groups['compute'] }}"
+
+- name: Set tolerations for ingress controller
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: operator.openshift.io/v1
+      kind: IngressController
+      metadata:
+        name: default
+        namespace: openshift-ingress-operator
+      spec:
+        nodePlacement:
+          nodeSelector:
+            matchLabels:
+              node-role.kubernetes.io/infra: ""
+          tolerations: "{{ ins_taints_ocs }}"
+        replicas: 3

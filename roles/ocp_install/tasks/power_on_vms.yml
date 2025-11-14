@@ -1,0 +1,17 @@
+---
+- name: Set the state of ocp cluster nodes to powered-on (vsphere)
+  module_defaults:
+    group/vmware: "{{ vvs_module_defaults_vmware_group }}"
+    community.vmware.vmware_guest: "{{ vvs_module_defaults_vmware_guest }}"
+  delegate_to: "{{ ins_delegate_to }}"
+  run_once: true
+  community.vmware.vmware_guest_powerstate:
+    state: powered-on
+    name: "{{ hostvars[item]['inventory_hostname'] }}"
+  with_items:
+    - "{{ groups['control'] }}"
+    - "{{ groups['infra'] }}"
+    - "{{ groups['compute'] }}"
+  async: 20
+  poll: 0
+  when: ins_vsphere | bool

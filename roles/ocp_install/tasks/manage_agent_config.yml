@@ -1,0 +1,99 @@
+---
+- name: Get macaddress
+  module_defaults:
+    group/vmware: "{{ vvs_module_defaults_vmware_group }}"
+    community.vmware.vmware_guest: "{{ vvs_module_defaults_vmware_guest }}"
+  when: ins_vsphere | bool
+  block:
+    - name: Get macaddress
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      community.vmware.vmware_guest_info:
+        datacenter: "{{ vvs_datacenter }}"
+        folder: "{{ vvs_folder_name }}"
+        name: "{{ hostvars[item]['inventory_hostname'] }}"
+      with_items:
+        - "{{ groups['control'] }}"
+        - "{{ groups['infra'] }}"
+        - "{{ groups['compute'] }}"
+      register: vminfo
+
+    - name: Set fact
+      run_once: true
+      ansible.builtin.set_fact:
+        ins_create_vms_agent_based_vminfo: "{{ vminfo.results }}"
+
+- name: Create agent-config
+  block:
+    - name: Create agent-config in config dir
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.template:
+        src: agent-config.yaml.j2
+        dest: "{{ ins_cluster_sub_dirs.config }}/agent-config.yaml"
+        mode: '0640'
+
+    - name: Retrieve current secret from Hashicorp Vault
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      community.hashi_vault.vault_kv2_get:
+        url: "{{ vault_address }}"
+        engine_mount_point: "{{ ins_engine_mount_point }}"
+        path: "{{ ins_cluster_name }}/install"
+        auth_method: "{{ ins_hashi_vault_auth_method }}"
+        role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+        secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+        validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+      register: current
+      no_log: true
+
+    - name: Write agent-config.yaml to vault
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      vars:
+        values_to_update:
+          agent-config.yaml: >-
+            {{ lookup('ansible.builtin.template', './agent-config.yaml.j2') }}
+      community.hashi_vault.vault_kv2_write:
+        url: "{{ vault_address }}"
+        engine_mount_point: "{{ ins_engine_mount_point }}"
+        path: "{{ ins_cluster_name }}/install"
+        auth_method: "{{ ins_hashi_vault_auth_method }}"
+        role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
+        secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
+        validate_certs: "{{ ins_hashi_vault_validate_certs }}"
+        data: >-
+          {{
+            current.secret
+            | combine(values_to_update, recursive=False)
+          }}
+      no_log: true
+
+- name: Create and upload agent based iso image
+  module_defaults:
+    group/vmware: "{{ vvs_module_defaults_vmware_group }}"
+    community.vmware.vmware_guest: "{{ vvs_module_defaults_vmware_guest }}"
+
+  block:
+    - name: Create agent based iso
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          export PATH="$HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          ./openshift-install agent create image --dir {{ ins_cluster_sub_dirs.config }}
+      args:
+        chdir: "{{ ins_cluster_sub_dirs.download }}"
+        executable: /bin/bash
+      register: create_iso
+      changed_when: create_iso.rc == 0
+
+    - name: Upload agent iso
+      delegate_to: "{{ ins_delegate_to }}"
+      run_once: true
+      community.vmware.vsphere_copy:
+        datacenter: "{{ vvs_datacenter }}"
+        datastore: "{{ vvs_vmware_iso_datastore }}"
+        path: "{{ vvs_iso_path }}"
+        src: "{{ ins_cluster_sub_dirs.config }}/agent.x86_64.iso"

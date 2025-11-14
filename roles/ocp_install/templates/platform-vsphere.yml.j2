@@ -1,0 +1,31 @@
+vsphere:
+{% if ins_loadbalancer_usermanaged | bool %}
+  loadBalancer:
+    type: UserManaged
+{% endif %}
+  apiVIPs:
+    - {{ ins_api_vip }}
+  failureDomains:
+    - name: generated-failure-domain
+      region: generated-region
+      server: {{ ins_vcenter_hostname }}
+      topology:
+        computeCluster: /{{ ins_vsphere_datacenter }}/host/{{ ins_vsphere_cluster }}
+        datacenter: {{ ins_vsphere_datacenter }}
+        datastore: /{{ ins_vsphere_datacenter }}/datastore/{{ vvs_vmware_iso_datastore }}
+        folder: {{ vvs_folder_full_path }}
+        networks:
+          - {{ ins_vsphere_network }}
+{% if ins_vsphere_resource_pool is defined %}
+        resourcePool: /{{ ins_vsphere_datacenter }}/host/{{ ins_vsphere_cluster }}/Resources/{{ ins_vsphere_resource_pool }}
+{% endif %}
+      zone: generated-zone
+  ingressVIPs:
+    - {{ ins_apps_vip }}
+  vcenters:
+    - datacenters:
+        - {{ ins_vsphere_datacenter }}
+      server: {{ ins_vcenter_hostname }}
+      port: 443
+      user: {{ ins_vcenter_username }}
+      password: {{ ins_vcenter_password }}
