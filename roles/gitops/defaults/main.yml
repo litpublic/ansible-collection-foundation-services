@@ -12,6 +12,10 @@ gitops_operator_subscription_extras: |
     env:
     - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
       value: openshift-gitops
+git_value_files:
+  - "cluster/{{ cluster_id[8:11] }}/values.yaml"
+  - "cluster/{{ cluster_id[8:11] }}/{{ cluster_id[11:14] }}/values.yaml"
+  - "cluster/{{ cluster_id[8:11] }}/{{ cluster_id[11:14] }}/{{ cluster_id }}/values.yaml"
 git_app_instance_label_key: app.kubernetes.io/instance
 git_vault_enabled: false
 git_external_secrets_path: stage-2c/data/{{ cluster_id[1:4] }}/{{ cluster_id[4:7] }}/{{ cluster_id }}/approle

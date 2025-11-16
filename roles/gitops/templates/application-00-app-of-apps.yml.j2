@@ -14,10 +14,9 @@ spec:
     targetRevision: "{{ git_target_revision }}"
     helm:
       valueFiles:
-        - cluster/{{ cluster_id }}/values.yaml
-        # - cluster/{{ cluster_id[1:4] }}/values.yaml
-        # - cluster/{{ cluster_id[1:4] }}/{{ cluster_id[4:7] }}/values.yaml
-        # - cluster/{{ cluster_id[1:4] }}/{{ cluster_id[4:7] }}/{{ cluster_id }}/{{ cluster_id }}-values.yaml
+{% for vf in git_value_files %}
+        - {{ vf }}
+{% endfor %}
   syncPolicy:
     automated:
       prune: false
