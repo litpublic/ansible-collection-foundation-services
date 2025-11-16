@@ -13,7 +13,7 @@
   community.hashi_vault.vault_kv2_get:
     url: "{{ vault_address }}"
     engine_mount_point: "{{ ins_engine_mount_point }}"
-    path: "{{ ins_cluster_name }}/install"
+    path: "{{ ins_vault_path }}/install"
     auth_method: "{{ ins_hashi_vault_auth_method }}"
     role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
     secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"
@@ -31,7 +31,7 @@
   community.hashi_vault.vault_kv2_write:
     url: "{{ vault_address }}"
     engine_mount_point: "{{ ins_engine_mount_point }}"
-    path: "{{ ins_cluster_name }}/install"
+    path: "{{ ins_vault_path }}/install"
     auth_method: "{{ ins_hashi_vault_auth_method }}"
     role_id: "{{ ansible_hashi_vault_role_id | default('') }}"
     secret_id: "{{ ansible_hashi_vault_secret_id | default('') }}"

@@ -139,7 +139,7 @@
       register: subscription_info
       until: >
         subscription_info.resources[0].status.currentCSV is defined and
-        subscription_info.resources[0].status.currentCSV | length > 0"
+        subscription_info.resources[0].status.currentCSV | length > 0
       retries: 15
       delay: 10
       when: ocp_manage_operator_starting_csv | length == 0

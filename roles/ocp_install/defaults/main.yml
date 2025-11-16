@@ -17,6 +17,7 @@ ins_vsphere_network:
 # ocp config
 ins_base_domain: ''
 ins_cluster_name:
+ins_vault_path: "{{ cluster_id[8:11] }}/{{ cluster_id[11:14] }}/{{ cluster_id }}"
 ins_version: 4.18.13
 ins_os: linux
 ins_arch: x86_64
