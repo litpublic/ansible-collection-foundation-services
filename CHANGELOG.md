@@ -1,3 +1,10 @@
+## [1.0.6](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.5...v1.0.6) (2025-11-16)
+
+
+### Bug Fixes
+
+* changes for the first cluster deployment ([b461db9](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/commit/b461db97967490ebb80793cd99afeee0de2c3e87))
+
 ## [1.0.5](https://gitlab.com/lit4/modulix/platform/software-development-ecosystem/automation-tools/ansible/collections/foundation_services/compare/v1.0.4...v1.0.5) (2025-11-14)
 
 
